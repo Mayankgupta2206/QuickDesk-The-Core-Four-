@@ -1,220 +1,46 @@
-# QuickDesk - Help Desk Management System
+# Getting Started with Create React App
 
-A modern, responsive help desk management system built with React.js and Bootstrap. QuickDesk provides a comprehensive solution for managing support tickets, users, and categories with role-based access control.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## 🚀 Features
+## Available Scripts
 
-### User Management
-- **Role-based Access Control**: Three user roles (User, Support Agent, Admin)
-- **User Registration & Authentication**: Secure login/register system
-- **Admin Approval System**: New users require admin approval
-- **Role Upgrade Requests**: Users can request role upgrades (admin approval required)
+In the project directory, you can run:
 
-### Ticket Management
-- **Create & Track Tickets**: Users can create tickets with subject, description, category, and priority
-- **File Attachments**: Support for file uploads (PDF, DOC, DOCX, TXT, JPG, PNG, GIF)
-- **Status Tracking**: Ticket statuses (Open → In Progress → Resolved → Closed)
-- **Priority Levels**: Low, Medium, High, Urgent
-- **Comments System**: Internal and public comments with user attribution
+### `npm start`
 
-### Advanced Features
-- **Search & Filtering**: Advanced search with multiple filter options
-- **Category Management**: Admin can create and manage ticket categories
-- **Dashboard Analytics**: Role-specific dashboards with statistics
-- **Responsive Design**: Mobile-friendly interface
-- **Real-time Updates**: Live data updates using localStorage
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## 🛠️ Technology Stack
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-- **Frontend**: React.js 18 with TypeScript
-- **UI Framework**: Bootstrap 5 with React Bootstrap
-- **Icons**: React Icons (Font Awesome)
-- **Routing**: React Router DOM
-- **State Management**: React Context API
-- **Storage**: LocalStorage (for demo purposes)
+### `npm test`
 
-## 📋 Prerequisites
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-- Node.js (version 14 or higher)
-- npm or yarn package manager
+### `npm run build`
 
-## 🚀 Installation & Setup
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd quick-desk
-   ```
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-3. **Start the development server**
-   ```bash
-   npm start
-   ```
+### `npm run eject`
 
-4. **Open your browser**
-   Navigate to `http://localhost:3000`
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-## 👥 User Roles & Access
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-### Demo Accounts
-The system comes with pre-configured demo accounts:
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-- **Admin**: `admin@company.com` (any password)
-- **Support Agent**: `support@company.com` (any password)
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-### Role Permissions
+## Learn More
 
-#### End User
-- Create and view their own tickets
-- Add comments to tickets
-- Request role upgrades
-- View ticket status and updates
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-#### Support Agent
-- All user permissions
-- View and manage assigned tickets
-- Update ticket status and priority
-- Add internal comments
-- Assign tickets to themselves
-
-#### Admin
-- All support agent permissions
-- Manage all users and their roles
-- Approve/reject user registrations
-- Approve/reject role upgrade requests
-- Create and manage ticket categories
-- View system-wide statistics
-
-## 📱 Features Overview
-
-### Authentication System
-- Elegant login/register pages with modern design
-- Form validation and error handling
-- Automatic login after registration
-- Session persistence using localStorage
-
-### Dashboard
-- **User Dashboard**: Personal ticket statistics and recent activity
-- **Support Dashboard**: Assigned tickets and urgent items
-- **Admin Dashboard**: System-wide statistics and pending approvals
-
-### Ticket Management
-- **Create Tickets**: Comprehensive form with all necessary fields
-- **Ticket List**: Advanced filtering and search capabilities
-- **Ticket Details**: Full ticket view with comments and history
-- **Status Updates**: Easy status and priority management
-
-### Admin Features
-- **User Management**: View, edit, and approve users
-- **Category Management**: Create, edit, and delete ticket categories
-- **Upgrade Requests**: Review and approve role upgrade requests
-- **System Statistics**: Comprehensive analytics and reporting
-
-## 🎨 Design Features
-
-- **Modern UI**: Clean, professional design with gradient backgrounds
-- **Responsive Layout**: Works perfectly on desktop, tablet, and mobile
-- **Smooth Animations**: Subtle animations and transitions
-- **Color-coded Elements**: Status badges, priority indicators, and category colors
-- **Accessibility**: Proper focus states and keyboard navigation
-
-## 📊 Data Structure
-
-### Ticket Status Flow
-```
-Open → In Progress → Resolved → Closed
-```
-
-### Priority Levels
-- **Low**: Green badge
-- **Medium**: Yellow badge  
-- **High**: Red badge
-- **Urgent**: Dark badge with special highlighting
-
-### Categories
-- **Technical Support**: Blue (#007bff)
-- **General Inquiry**: Green (#28a745)
-- **Bug Report**: Red (#dc3545)
-- **Feature Request**: Yellow (#ffc107)
-
-## 🔧 Customization
-
-### Adding New Categories
-1. Login as admin
-2. Navigate to "Categories" in the admin menu
-3. Click "Add Category"
-4. Set name, description, and color
-
-### Modifying User Roles
-1. Login as admin
-2. Navigate to "Manage Users"
-3. Click "Edit" on any user
-4. Change role and approval status
-
-### Styling Customization
-The application uses CSS custom properties and Bootstrap classes. Main style files:
-- `src/App.css` - Global styles
-- `src/components/auth/Auth.css` - Authentication pages
-- `src/components/dashboard/Dashboard.css` - Dashboard components
-- `src/components/tickets/Tickets.css` - Ticket management
-- `src/components/admin/Admin.css` - Admin interface
-
-## 🚀 Deployment
-
-### Build for Production
-```bash
-npm run build
-```
-
-### Deploy to Netlify/Vercel
-1. Build the project
-2. Upload the `build` folder to your hosting platform
-3. Configure routing to handle React Router (redirect all routes to index.html)
-
-## 🔒 Security Notes
-
-This is a demo application using localStorage for data persistence. For production use:
-
-- Implement proper backend API with authentication
-- Use secure session management
-- Add input validation and sanitization
-- Implement proper error handling
-- Add rate limiting and security headers
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🆘 Support
-
-For support or questions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation
-
-## 🎯 Roadmap
-
-Future enhancements planned:
-- Real-time notifications
-- Email integration
-- Advanced reporting
-- API integration
-- Mobile app
-- Multi-language support
-
----
-
-**QuickDesk** - Streamlining support ticket management with modern web technologies.
+To learn React, check out the [React documentation](https://reactjs.org/).
