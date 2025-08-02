@@ -1,110 +1,81 @@
-const express = require('express');
 const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const { authenticateToken } = require('../middleware/auth');
 
-const router = express.Router();
-
-// Login route
-router.post('/login', [
-  body('email').isEmail().normalizeEmail().withMessage('Please enter a valid email'),
-  body('password').notEmpty().withMessage('Password is required')
-], async (req, res) => {
+// Middleware to verify JWT token
+const authenticateToken = async (req, res, next) => {
   try {
-    // Check for validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: errors.array()
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    if (!token) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Access token required' 
       });
     }
 
-    const { email, password } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
 
-    // Find user by email
-    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid token' 
       });
     }
 
-    // Check password
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
+    req.user = user;
+    next();
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid token' 
+      });
+    }
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Token expired' 
+      });
+    }
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Authentication error' 
+    });
+  }
+};
+
+// Middleware to check specific roles
+const requireRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Authentication required' 
       });
     }
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Insufficient permissions' 
+      });
+    }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        userId: user._id, 
-        email: user.email, 
-        role: user.role 
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    next();
+  };
+};
 
-    // Return user data and token
-    res.json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-          lastLogin: user.lastLogin
-        },
-        token
-      }
-    });
+// Specific role middlewares
+const requireAdmin = requireRole(['admin']);
+const requireSupport = requireRole(['support']);
+const requireUser = requireRole(['user', 'admin', 'support']);
 
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-});
-
-// Get current user profile
-router.get('/profile', authenticateToken, async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      data: {
-        user: req.user
-      }
-    });
-  } catch (error) {
-    console.error('Profile error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-});
-
-// Logout route (client-side token removal)
-router.post('/logout', authenticateToken, (req, res) => {
-  res.json({
-    success: true,
-    message: 'Logout successful'
-  });
-});
-
-module.exports = router; 
+module.exports = {
+  authenticateToken,
+  requireRole,
+  requireAdmin,
+  requireSupport,
+  requireUser
+}; 
