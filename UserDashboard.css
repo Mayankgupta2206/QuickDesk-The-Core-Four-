@@ -102,7 +102,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 11px 15px;
+  padding: 11px 20px;
   border-bottom: 1px solid #3d3d3d;
   background-color: #2d2d2d;
   width: 100%;
@@ -185,6 +185,25 @@
 .dropdown-arrow {
   font-size: 0.8rem;
   color: #b0b0b0;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.upgrade-btn {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.upgrade-btn:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
 }
 
 .add-ticket-btn {
@@ -495,7 +514,8 @@
 }
 
 /* Modal Styles */
-.ticket-modal .modal-content {
+.ticket-modal .modal-content,
+.upgrade-modal .modal-content {
   background-color: #2d2d2d;
   border: 1px solid #3d3d3d;
   border-radius: 12px;
@@ -503,27 +523,32 @@
   margin-top: 100px;
 }
 
-.ticket-modal .modal-header {
+.ticket-modal .modal-header,
+.upgrade-modal .modal-header {
   background-color: #3d3d3d;
   border-bottom: 1px solid #4d4d4d;
   border-radius: 12px 12px 0 0;
 }
 
-.ticket-modal .modal-title {
+.ticket-modal .modal-title,
+.upgrade-modal .modal-title {
   color: white;
   font-weight: 600;
   font-size: 1.2rem;
 }
 
-.ticket-modal .btn-close {
+.ticket-modal .btn-close,
+.upgrade-modal .btn-close {
   filter: invert(1);
 }
 
-.ticket-modal .modal-body {
+.ticket-modal .modal-body,
+.upgrade-modal .modal-body {
   padding: 25px;
 }
 
-.ticket-modal .modal-footer {
+.ticket-modal .modal-footer,
+.upgrade-modal .modal-footer {
   background-color: #3d3d3d;
   border-top: 1px solid #4d4d4d;
   border-radius: 0 0 12px 12px;
@@ -550,39 +575,115 @@
   color: #888 !important;
 }
 
-.ticket-modal .form-label {
+.ticket-modal .form-label,
+.upgrade-modal .form-label {
   color: white;
   font-weight: 500;
   margin-bottom: 8px;
   font-size: 0.9rem;
 }
 
-.ticket-modal .btn {
+.ticket-modal .btn,
+.upgrade-modal .btn {
   border-radius: 8px;
   padding: 10px 20px;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
-.ticket-modal .btn-primary {
+.ticket-modal .btn-primary,
+.upgrade-modal .btn-primary {
   background-color: #007bff;
   border-color: #007bff;
 }
 
-.ticket-modal .btn-primary:hover {
+.ticket-modal .btn-primary:hover,
+.upgrade-modal .btn-primary:hover {
   background-color: #0056b3;
   border-color: #0056b3;
   transform: translateY(-1px);
 }
 
-.ticket-modal .btn-secondary {
+.ticket-modal .btn-secondary,
+.upgrade-modal .btn-secondary {
   background-color: #6c757d;
   border-color: #6c757d;
 }
 
-.ticket-modal .btn-secondary:hover {
+.ticket-modal .btn-secondary:hover,
+.upgrade-modal .btn-secondary:hover {
   background-color: #5a6268;
   border-color: #545b62;
+}
+
+/* Upgrade Modal Specific Styles */
+.upgrade-content {
+  padding: 20px 0;
+}
+
+.upgrade-action-btn {
+  width: 100%;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 500;
+  background-color: #28a745;
+  border-color: #28a745;
+  margin-bottom: 1rem;
+}
+
+.upgrade-action-btn:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.avatar-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  background-color: #3d3d3d;
+  border: 2px dashed #4d4d4d;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.avatar-upload:hover {
+  border-color: #007bff;
+  background-color: #4d4d4d;
+}
+
+.avatar-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #b0b0b0;
+}
+
+.avatar-upload p {
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  margin: 0;
+  text-align: center;
+}
+
+.upgrade-modal .btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.upgrade-modal .btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
 }
 
 /* Responsive Design */

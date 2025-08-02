@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Container, Row, Col, Card, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Container, Row, Col, Card, Form, Alert, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminDashboard.css';
+import TicketList from './TicketList';
+import apiService, { Ticket, TicketStats } from '../services/api';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -10,6 +12,58 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, userRole }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [stats, setStats] = useState<TicketStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+  const loadStats = async () => {
+    try {
+      const response = await apiService.getTicketStats();
+      setStats(response.data);
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const handleTicketClick = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    // You can implement a ticket detail modal here
+    console.log('Ticket clicked:', ticket);
+  };
+
+  const getStatusCount = (status: string) => {
+    if (!stats?.statusBreakdown) return 0;
+    const statusItem = stats.statusBreakdown.find(item => item._id === status);
+    return statusItem?.count || 0;
+  };
+
+  const getPriorityCount = (priority: string) => {
+    if (!stats?.priorityBreakdown) return 0;
+    const priorityItem = stats.priorityBreakdown.find(item => item._id === priority);
+    return priorityItem?.count || 0;
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="main-content">
+          <div className="text-center py-5">
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <p className="mt-2">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
@@ -35,17 +89,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, userRole }) =
             <div className="nav-icon">👤</div>
             <span>Dashboard</span>
           </div>
-          <div className={`nav-item ${activeTab === 'notification' ? 'active' : ''}`} onClick={() => setActiveTab('notification')}>
-            <div className="nav-icon">🔔</div>
-            <span>Notification</span>
-          </div>
           <div className={`nav-item ${activeTab === 'tickets' ? 'active' : ''}`} onClick={() => setActiveTab('tickets')}>
             <div className="nav-icon">🎫</div>
-            <span>My Tickets</span>
+            <span>All Tickets</span>
           </div>
-          <div className={`nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={() => setActiveTab('help')}>
-            <div className="nav-icon">❓</div>
-            <span>Help / FAQ</span>
+          <div className={`nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
+            <div className="nav-icon">👥</div>
+            <span>Users</span>
+          </div>
+          <div className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
+            <div className="nav-icon">📊</div>
+            <span>Reports</span>
           </div>
           <div className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
             <div className="nav-icon">⚙️</div>
@@ -66,7 +120,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, userRole }) =
         {/* Top Header */}
         <div className="top-header">
           <div className="header-left">
-            <h1>Dashboard</h1>
+            <h1>Admin Dashboard</h1>
           </div>
           <div className="header-right">
             <div className="header-actions">
@@ -80,10 +134,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, userRole }) =
             <div className="user-profile">
               <div className="profile-info">
                 <div className="profile-name">Admin</div>
-                <div className="profile-email">alexamring@gmail.com</div>
+                <div className="profile-email">admin@company.com</div>
               </div>
               <div className="profile-avatar">
-                <div className="avatar">👩</div>
+                <div className="avatar">👨‍💼</div>
                 <span className="dropdown-arrow">▼</span>
               </div>
             </div>
@@ -92,183 +146,136 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, userRole }) =
 
         {/* Dashboard Content */}
         <div className="dashboard-content">
-          {/* Overview Cards */}
-          <div className="overview-cards">
-            <Row>
-              <Col md={3}>
-                <Card className="overview-card">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>254</h3>
-                      <h4>Tickets Created</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={3}>
-                <Card className="overview-card">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>87%</h3>
-                      <h4>Resolution Rate</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={3}>
-                <Card className="overview-card">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>4.2h</h3>
-                      <h4>Avg Resolution Time</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={3}>
-                <Card className="overview-card">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>4.6/5</h3>
-                      <h4>Customer Satisfaction</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </div>
+          {error && (
+            <Alert variant="danger" dismissible onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
 
-          {/* Middle Section */}
-          <div className="middle-section">
-            <Row>
-              <Col md={6}>
-                <Card className="category-card">
-                  <Card.Body>
-                    <div className="card-title">
-                      <h4>Category Management</h4>
-                    </div>
-                    <div className="category-list">
-                      <div className="category-item">
-                        <span className="category-name">Authentication</span>
-                        <span className="category-count">45 tickets</span>
-                      </div>
-                      <div className="category-item">
-                        <span className="category-name">Performance</span>
-                        <span className="category-count">32 tickets</span>
-                      </div>
-                      <div className="category-item">
-                        <span className="category-name">Hardware</span>
-                        <span className="category-count">28 tickets</span>
-                      </div>
-                      <div className="category-item">
-                        <span className="category-name">Software</span>
-                        <span className="category-count">67 tickets</span>
-                      </div>
-                    </div>
-                    <Button variant="secondary" className="add-category-btn">
-                      Add Category
-                    </Button>
-                    <div className="category-icon">🐱</div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={6}>
-                <Card className="user-stats-card">
-                  <Card.Body>
-                    <div className="card-title">
-                      <h4>User Statistics</h4>
-                    </div>
-                    <div className="stats-list">
-                      <div className="stat-item">
-                        <span className="stat-label">Active Users:</span>
-                        <span className="stat-value">156</span>
-                      </div>
-                      <div className="stat-item">
-                        <span className="stat-label">Support Agents:</span>
-                        <span className="stat-value">12</span>
-                      </div>
-                      <div className="stat-item">
-                        <span className="stat-label">New This Week:</span>
-                        <span className="stat-value">8</span>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </div>
+          {activeTab === 'dashboard' && (
+            <>
+              {/* Overview Cards */}
+              <div className="overview-cards">
+                <Row>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon blue">📋</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getStatusCount('open')}</h3>
+                          <h4>Open Tickets</h4>
+                          <p>Awaiting response</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon yellow">⚡</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getStatusCount('in-progress')}</h3>
+                          <h4>In Progress</h4>
+                          <p>Being handled</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon green">✅</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getStatusCount('resolved')}</h3>
+                          <h4>Resolved</h4>
+                          <p>Successfully resolved</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon red">🚨</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getPriorityCount('urgent')}</h3>
+                          <h4>Urgent</h4>
+                          <p>High priority tickets</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+              </div>
 
-          {/* Bottom Section */}
-          <div className="bottom-section">
-            <Row>
-              <Col md={6}>
-                <Card className="chart-card">
-                  <Card.Body>
-                    <div className="card-header">
-                      <h4>Ticket Volume Trends</h4>
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="chart-container">
-                      <div className="chart-placeholder">
-                        <div className="chart-line">
-                          <div className="data-point" style={{left: '10%', top: '60%'}}>Mon</div>
-                          <div className="data-point" style={{left: '25%', top: '50%'}}>Tue</div>
-                          <div className="data-point" style={{left: '40%', top: '40%'}}>Wed</div>
-                          <div className="data-point" style={{left: '55%', top: '30%'}}>Thu</div>
-                          <div className="data-point" style={{left: '70%', top: '45%'}}>Fri</div>
-                          <div className="data-point" style={{left: '85%', top: '55%'}}>Sat</div>
-                          <div className="data-point" style={{left: '95%', top: '65%'}}>Sun</div>
-                        </div>
-                        <div className="chart-label">50 Ticket</div>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={6}>
-                <Card className="chart-card">
-                  <Card.Body>
-                    <div className="card-header">
-                      <h4>Ticket Distribution</h4>
-                    </div>
-                    <div className="donut-chart-container">
-                      <div className="donut-chart">
-                        <div className="donut-segment yellow"></div>
-                        <div className="donut-segment blue"></div>
-                        <div className="donut-segment green"></div>
-                      </div>
-                      <div className="chart-legend">
-                        <div className="legend-item">
-                          <span className="legend-dot blue"></span>
-                          <span className="legend-label">Hardware</span>
-                        </div>
-                        <div className="legend-item">
-                          <span className="legend-dot yellow"></span>
-                          <span className="legend-label">Software</span>
-                        </div>
-                        <div className="legend-item">
-                          <span className="legend-dot green"></span>
-                          <span className="legend-label">Network</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </div>
+              {/* Recent Tickets */}
+              <div className="recent-tickets">
+                <div className="section-header">
+                  <h3>Recent Tickets</h3>
+                  <p>Latest ticket activity across the system</p>
+                </div>
+                <TicketList 
+                  onTicketClick={handleTicketClick}
+                  showCreateButton={false}
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === 'tickets' && (
+            <div className="tickets-section">
+              <div className="section-header">
+                <h2>All Tickets</h2>
+                <p>Manage and monitor all support tickets in the system</p>
+              </div>
+              <TicketList 
+                onTicketClick={handleTicketClick}
+                showCreateButton={false}
+              />
+            </div>
+          )}
+
+          {activeTab === 'users' && (
+            <div className="users-section">
+              <h2>User Management</h2>
+              <p>Manage system users and permissions</p>
+              <div className="text-center py-5">
+                <p className="text-muted">User management features coming soon...</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reports' && (
+            <div className="reports-section">
+              <h2>Reports & Analytics</h2>
+              <p>System performance and ticket analytics</p>
+              <div className="text-center py-5">
+                <p className="text-muted">Reporting features coming soon...</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="settings-section">
+              <h2>System Settings</h2>
+              <p>Configure system preferences and settings</p>
+              <div className="text-center py-5">
+                <p className="text-muted">Settings features coming soon...</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

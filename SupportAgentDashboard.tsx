@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Container, Row, Col, Card, Form, Dropdown } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Container, Row, Col, Card, Form, Alert, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SupportAgentDashboard.css';
+import TicketList from './TicketList';
+import apiService, { Ticket, TicketStats } from '../services/api';
 
 interface SupportAgentDashboardProps {
   onLogout: () => void;
@@ -10,52 +12,58 @@ interface SupportAgentDashboardProps {
 
 const SupportAgentDashboard: React.FC<SupportAgentDashboardProps> = ({ onLogout, userRole }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [stats, setStats] = useState<TicketStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-  // Dummy data for tickets
-  const tickets = [
-    {
-      id: 'T-001',
-      title: 'Login Issues',
-      description: 'Unable to access account after password reset',
-      status: 'Open',
-      time: '2 hours ago',
-    },
-    {
-      id: 'T-002',
-      title: 'Software Installation',
-      description: 'Need assistance installing new design software',
-      status: 'Open',
-      time: '4 hours ago',
-    },
-    {
-      id: 'T-003',
-      title: 'Email Configuration',
-      description: 'Outlook not syncing with server',
-      status: 'Resolved',
-      time: '1 day ago',
-    },
-    {
-      id: 'T-004',
-      title: 'Hardware Malfunction',
-      description: 'Laptop screen flickering intermittently',
-      status: 'In Progress',
-      time: '3 days ago',
-    },
-    {
-      id: 'T-005',
-      title: 'Network Connectivity',
-      description: 'Frequent disconnections from office Wi-Fi',
-      status: 'Open',
-      time: '5 hours ago',
-    },
-    {
-      id: 'T-006',
-      title: 'Printer Not Responding',
-      description: 'Printer shows offline status despite being connected',
-      status: 'Resolved',
-      time: '2 days ago',
-    },
-  ];
+  const loadStats = async () => {
+    try {
+      const response = await apiService.getTicketStats();
+      setStats(response.data);
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const handleTicketClick = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    // You can implement a ticket detail modal here
+    console.log('Ticket clicked:', ticket);
+  };
+
+  const getStatusCount = (status: string) => {
+    if (!stats?.statusBreakdown) return 0;
+    const statusItem = stats.statusBreakdown.find(item => item._id === status);
+    return statusItem?.count || 0;
+  };
+
+  const getPriorityCount = (priority: string) => {
+    if (!stats?.priorityBreakdown) return 0;
+    const priorityItem = stats.priorityBreakdown.find(item => item._id === priority);
+    return priorityItem?.count || 0;
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="main-content">
+          <div className="text-center py-5">
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <p className="mt-2">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
@@ -81,17 +89,17 @@ const SupportAgentDashboard: React.FC<SupportAgentDashboardProps> = ({ onLogout,
             <div className="nav-icon">👤</div>
             <span>Dashboard</span>
           </div>
-          <div className={`nav-item ${activeTab === 'notification' ? 'active' : ''}`} onClick={() => setActiveTab('notification')}>
-            <div className="nav-icon">🔔</div>
-            <span>Notification</span>
-          </div>
           <div className={`nav-item ${activeTab === 'tickets' ? 'active' : ''}`} onClick={() => setActiveTab('tickets')}>
             <div className="nav-icon">🎫</div>
             <span>My Tickets</span>
           </div>
-          <div className={`nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={() => setActiveTab('help')}>
-            <div className="nav-icon">❓</div>
-            <span>Help / FAQ</span>
+          <div className={`nav-item ${activeTab === 'queue' ? 'active' : ''}`} onClick={() => setActiveTab('queue')}>
+            <div className="nav-icon">📋</div>
+            <span>Ticket Queue</span>
+          </div>
+          <div className={`nav-item ${activeTab === 'knowledge' ? 'active' : ''}`} onClick={() => setActiveTab('knowledge')}>
+            <div className="nav-icon">📚</div>
+            <span>Knowledge Base</span>
           </div>
           <div className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
             <div className="nav-icon">⚙️</div>
@@ -112,7 +120,7 @@ const SupportAgentDashboard: React.FC<SupportAgentDashboardProps> = ({ onLogout,
         {/* Top Header */}
         <div className="top-header">
           <div className="header-left">
-            <h1>Dashboard</h1>
+            <h1>Support Agent Dashboard</h1>
           </div>
           <div className="header-right">
             <div className="header-actions">
@@ -125,11 +133,11 @@ const SupportAgentDashboard: React.FC<SupportAgentDashboardProps> = ({ onLogout,
             </div>
             <div className="user-profile">
               <div className="profile-info">
-                <div className="profile-name">Agent</div>
-                <div className="profile-email">alexamring@gmail.com</div>
+                <div className="profile-name">Support Agent</div>
+                <div className="profile-email">agent@help.com</div>
               </div>
               <div className="profile-avatar">
-                <div className="avatar">👩</div>
+                <div className="avatar">👨‍💻</div>
                 <span className="dropdown-arrow">▼</span>
               </div>
             </div>
@@ -138,113 +146,139 @@ const SupportAgentDashboard: React.FC<SupportAgentDashboardProps> = ({ onLogout,
 
         {/* Dashboard Content */}
         <div className="dashboard-content">
-          {/* Summary Cards */}
-          <div className="summary-cards">
-            <Row>
-              <Col md={4}>
-                <Card className="summary-card resolved">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="card-icon green">✅</div>
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>28</h3>
-                      <h4>Tickets Resolved</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={4}>
-                <Card className="summary-card satisfaction">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="card-icon blue">😊</div>
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>4.8</h3>
-                      <h4>Satisfaction Rating</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-              <Col md={4}>
-                <Card className="summary-card response-time">
-                  <Card.Body>
-                    <div className="card-header">
-                      <div className="card-icon purple">⏱️</div>
-                      <div className="refresh-icon">🔄</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>3.2h</h3>
-                      <h4>Avg Response Time</h4>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </div>
+          {error && (
+            <Alert variant="danger" dismissible onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
 
-          {/* My Tickets Section */}
-          <div className="my-tickets-section">
-            <div className="tickets-header">
-              <div className="tickets-title">
-                <span className="search-icon">🔍</span>
-                <h3>My Tickets</h3>
-              </div>
-              <div className="tickets-filter">
-                <Form.Select className="status-filter">
-                  <option>My Tickets</option>
-                  <option>All Tickets</option>
-                  <option>Open</option>
-                  <option>Resolved</option>
-                  <option>In Progress</option>
-                </Form.Select>
-              </div>
-            </div>
-
-            <div className="tickets-list">
-              {tickets.map((ticket) => (
-                <Card key={ticket.id} className="ticket-card">
-                  <Card.Body>
-                    <div className="ticket-header">
-                      <div className="ticket-info">
-                        <h5 className="ticket-title">{ticket.title}</h5>
-                        <p className="ticket-description">{ticket.description}</p>
-                      </div>
-                      <div className="ticket-meta">
-                        <div className="ticket-actions-top">
-                          <span className="share-icon">🔗</span>
-                          <span className="ticket-id">{ticket.id}</span>
+          {activeTab === 'dashboard' && (
+            <>
+              {/* Overview Cards */}
+              <div className="overview-cards">
+                <Row>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon blue">📋</div>
+                          <div className="refresh-icon">🔄</div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="ticket-footer">
-                      <div className="ticket-status-info">
-                        <Button 
-                          variant={ticket.status === 'Open' ? 'success' : ticket.status === 'Resolved' ? 'primary' : 'warning'} 
-                          size="sm" 
-                          className="status-btn"
-                        >
-                          {ticket.status}
-                        </Button>
-                        <span className="ticket-time">{ticket.time}</span>
-                      </div>
-                      <div className="ticket-actions">
-                        <Button variant="primary" size="sm" className="resolve-btn">
-                          Resolve
-                        </Button>
-                        <Button variant="secondary" size="sm" className="assign-btn">
-                          Assign
-                        </Button>
-                      </div>
-                    </div>
-                  </Card.Body>
-                </Card>
-              ))}
+                        <div className="card-content">
+                          <h3>{getStatusCount('open')}</h3>
+                          <h4>Open Tickets</h4>
+                          <p>Awaiting response</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon yellow">⚡</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getStatusCount('in-progress')}</h3>
+                          <h4>In Progress</h4>
+                          <p>Being handled</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon green">✅</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getStatusCount('resolved')}</h3>
+                          <h4>Resolved</h4>
+                          <p>Successfully resolved</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={3}>
+                    <Card className="overview-card">
+                      <Card.Body>
+                        <div className="card-header">
+                          <div className="card-icon red">🚨</div>
+                          <div className="refresh-icon">🔄</div>
+                        </div>
+                        <div className="card-content">
+                          <h3>{getPriorityCount('urgent')}</h3>
+                          <h4>Urgent</h4>
+                          <p>High priority tickets</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+              </div>
+
+              {/* My Assigned Tickets */}
+              <div className="my-tickets">
+                <div className="section-header">
+                  <h3>My Assigned Tickets</h3>
+                  <p>Tickets assigned to you for resolution</p>
+                </div>
+                <TicketList 
+                  onTicketClick={handleTicketClick}
+                  showCreateButton={false}
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === 'tickets' && (
+            <div className="tickets-section">
+              <div className="section-header">
+                <h2>My Tickets</h2>
+                <p>Manage tickets assigned to you</p>
+              </div>
+              <TicketList 
+                onTicketClick={handleTicketClick}
+                showCreateButton={false}
+              />
             </div>
-          </div>
+          )}
+
+          {activeTab === 'queue' && (
+            <div className="queue-section">
+              <div className="section-header">
+                <h2>Ticket Queue</h2>
+                <p>Unassigned tickets available for pickup</p>
+              </div>
+              <TicketList 
+                onTicketClick={handleTicketClick}
+                showCreateButton={false}
+              />
+            </div>
+          )}
+
+          {activeTab === 'knowledge' && (
+            <div className="knowledge-section">
+              <h2>Knowledge Base</h2>
+              <p>Access support documentation and solutions</p>
+              <div className="text-center py-5">
+                <p className="text-muted">Knowledge base features coming soon...</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="settings-section">
+              <h2>Settings</h2>
+              <p>Manage your support agent preferences</p>
+              <div className="text-center py-5">
+                <p className="text-muted">Settings features coming soon...</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

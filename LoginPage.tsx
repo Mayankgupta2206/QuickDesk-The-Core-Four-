@@ -1,17 +1,61 @@
 import React, { useState } from 'react';
-import { Button, Form, Container, Row, Col } from 'react-bootstrap';
+import { Button, Form, Container, Row, Col, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './LoginPage.css';
+import apiService, { LoginCredentials } from '../services/api';
 
-const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  onLogin: (role: 'user' | 'admin' | 'support') => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [selectedRole, setSelectedRole] = useState<'user' | 'admin' | 'support'>('user');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', { username, password, role: selectedRole });
+  const handleLogin = async () => {
+    // Clear any previous errors
+    setError('');
+    
+    // Validate that email and password are entered
+    if (!email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+    
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const credentials: LoginCredentials = {
+        email: email.trim(),
+        password: password
+      };
+
+      const response = await apiService.login(credentials);
+      
+      // Store the token
+      apiService.setToken(response.data.token);
+      
+      // Call the onLogin callback with the user's role from the backend
+      onLogin(response.data.user.role);
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -90,21 +134,26 @@ const LoginPage: React.FC = () => {
             </div>
 
             {/* Login form */}
-            <Form onSubmit={handleLogin} className="login-form">
-              <Form.Group className="mb-3">
+            <div className="login-form">
+              {error && (
+                <Alert variant="danger" className="mb-3">
+                  {error}
+                </Alert>
+              )}
+              <div className="mb-3">
                 <div className="input-group-custom">
                   <span className="input-icon">👤</span>
                   <Form.Control
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="custom-input"
                   />
                 </div>
-              </Form.Group>
+              </div>
 
-              <Form.Group className="mb-3">
+              <div className="mb-3">
                 <div className="input-group-custom">
                   <span className="input-icon">🔑</span>
                   <Form.Control
@@ -115,17 +164,22 @@ const LoginPage: React.FC = () => {
                     className="custom-input"
                   />
                 </div>
-              </Form.Group>
+              </div>
 
               <div className="forgot-password">
                 <a href="#" className="forgot-link">Forgot password?</a>
               </div>
 
-              <Button type="submit" variant="primary" className="login-btn">
-                Log In
+              <Button 
+                variant="primary" 
+                className="login-btn"
+                onClick={handleLogin}
+                disabled={loading}
+              >
+                {loading ? 'Logging In...' : 'Log In'}
                 <span className="arrow-icon">→</span>
               </Button>
-            </Form>
+            </div>
           </Col>
         </Row>
       </Container>
