@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Container, Row, Col, Card, Form } from 'react-bootstrap';
+import { Button, Container, Row, Col, Card, Form, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './UserDashboard.css';
 
@@ -10,6 +10,10 @@ interface UserDashboardProps {
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ onLogout, userRole }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showAddTicketModal, setShowAddTicketModal] = useState(false);
+
+  const handleCloseModal = () => setShowAddTicketModal(false);
+  const handleShowModal = () => setShowAddTicketModal(true);
 
   return (
     <div className="dashboard-container">
@@ -87,7 +91,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ onLogout, userRole }) => 
                 <span className="dropdown-arrow">▼</span>
               </div>
             </div>
-            <Button variant="primary" className="add-ticket-btn">
+            <Button variant="primary" className="add-ticket-btn" onClick={handleShowModal}>
               + Add a new Ticket
             </Button>
           </div>
@@ -277,6 +281,89 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ onLogout, userRole }) => 
           </div>
         </div>
       </div>
+
+      {/* Add New Ticket Modal */}
+      <Modal show={showAddTicketModal} onHide={handleCloseModal} size="lg" className="ticket-modal">
+        <Modal.Header closeButton className="modal-header">
+          <Modal.Title>Create New Ticket</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="modal-body">
+          <Form>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Title *</Form.Label>
+                  <Form.Control 
+                    type="text" 
+                    placeholder="Brief description of the issue"
+                    className="modal-input"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Category *</Form.Label>
+                  <Form.Select className="modal-input">
+                    <option>Technical Issue</option>
+                    <option>Feature Request</option>
+                    <option>Bug Report</option>
+                    <option>General Inquiry</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Priority *</Form.Label>
+                  <Form.Select className="modal-input">
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                    <option>Urgent</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Department</Form.Label>
+                  <Form.Select className="modal-input">
+                    <option>IT Support</option>
+                    <option>Customer Service</option>
+                    <option>Sales</option>
+                    <option>General</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Description *</Form.Label>
+              <Form.Control 
+                as="textarea" 
+                rows={4} 
+                placeholder="Detailed description of the issue..."
+                className="modal-input"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Attachments</Form.Label>
+              <Form.Control 
+                type="file" 
+                multiple 
+                className="modal-input"
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer className="modal-footer">
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Cancel
+          </Button>
+          <Button variant="primary">
+            Create Ticket
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -494,7 +494,96 @@
   color: #dc3545;
 }
 
+/* Modal Styles */
+.ticket-modal .modal-content {
+  background-color: #2d2d2d;
+  border: 1px solid #3d3d3d;
+  border-radius: 12px;
+  color: white;
+  margin-top: 100px;
+}
 
+.ticket-modal .modal-header {
+  background-color: #3d3d3d;
+  border-bottom: 1px solid #4d4d4d;
+  border-radius: 12px 12px 0 0;
+}
+
+.ticket-modal .modal-title {
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.ticket-modal .btn-close {
+  filter: invert(1);
+}
+
+.ticket-modal .modal-body {
+  padding: 25px;
+}
+
+.ticket-modal .modal-footer {
+  background-color: #3d3d3d;
+  border-top: 1px solid #4d4d4d;
+  border-radius: 0 0 12px 12px;
+  padding: 20px 25px;
+}
+
+.modal-input {
+  background-color: #3d3d3d !important;
+  border: 1px solid #4d4d4d !important;
+  border-radius: 8px !important;
+  color: white !important;
+  padding: 12px 16px !important;
+  font-size: 0.95rem !important;
+}
+
+.modal-input:focus {
+  background-color: #3d3d3d !important;
+  border-color: #007bff !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  color: white !important;
+}
+
+.modal-input::placeholder {
+  color: #888 !important;
+}
+
+.ticket-modal .form-label {
+  color: white;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.ticket-modal .btn {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.ticket-modal .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.ticket-modal .btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.ticket-modal .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.ticket-modal .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
