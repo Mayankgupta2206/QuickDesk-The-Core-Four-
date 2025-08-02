@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, Badge, Button, Form, Row, Col, Pagination, Alert, Spinner } from 'react-bootstrap';
 import apiService, { Ticket } from '../services/api';
 
@@ -30,10 +30,10 @@ const TicketList: React.FC<TicketListProps> = ({
 
   const isMounted = useRef(true);
 
-  // Define loadTickets using useCallback to prevent infinite loops
-  const loadTickets = useCallback(async () => {
+  const loadTickets = async () => {
     if (!isMounted.current) return;
     
+    console.log('TicketList: Starting to load tickets...');
     setLoading(true);
     setError('');
     
@@ -61,11 +61,15 @@ const TicketList: React.FC<TicketListProps> = ({
         params.category = filters.category;
       }
       
+      console.log('TicketList: Making API call with params:', params);
       const response = await apiService.getTickets(params);
+      console.log('TicketList: API response received:', response);
+      console.log('TicketList: Tickets count:', response.data.tickets.length);
       
       if (isMounted.current) {
         setTickets(response.data.tickets);
         setPagination(response.data.pagination);
+        console.log('TicketList: State updated with tickets');
       }
     } catch (error) {
       if (isMounted.current) {
@@ -79,18 +83,34 @@ const TicketList: React.FC<TicketListProps> = ({
     } finally {
       if (isMounted.current) {
         setLoading(false);
+        console.log('TicketList: Loading finished, loading state:', false);
       }
     }
-  }, [filters, pagination.page, pagination.limit]); // Dependencies for useCallback
+  };
 
-  // Single useEffect to handle all ticket loading
+  // Single useEffect to handle initial load
   useEffect(() => {
     loadTickets();
     
     return () => {
       isMounted.current = false;
     };
-  }, [loadTickets]); // Only depend on loadTickets function
+  }, []); // Only run once on mount
+
+  // Handle filter and pagination changes without causing loops
+  const prevFiltersRef = useRef(filters);
+  const prevPaginationRef = useRef(pagination);
+
+  useEffect(() => {
+    const filtersChanged = JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters);
+    const paginationChanged = JSON.stringify(prevPaginationRef.current) !== JSON.stringify(pagination);
+    
+    if ((filtersChanged || paginationChanged) && !loading && isMounted.current) {
+      loadTickets();
+      prevFiltersRef.current = filters;
+      prevPaginationRef.current = pagination;
+    }
+  }, [filters, pagination.page, pagination.limit, loading]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
