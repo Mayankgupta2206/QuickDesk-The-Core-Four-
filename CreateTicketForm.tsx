@@ -191,6 +191,9 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ show, onHide, onTic
           <Button variant="secondary" onClick={onHide} disabled={loading}>
             Cancel
           </Button>
+          <Button variant="info" type="button" disabled={loading}>
+            Create with AI
+          </Button>
           <Button variant="primary" type="submit" disabled={loading}>
             {loading ? 'Creating...' : 'Create Ticket'}
           </Button>
